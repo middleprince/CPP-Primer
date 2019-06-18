@@ -19,12 +19,10 @@ void printStringVec(const vector<string> &strs) {
 void biggies(vector<string> &strs, vector<string>::size_type len) {
     elimDups(strs);    
 
-    auto location = partition(strs.begin(), strs.end(), 
+    auto location = stable_partition(strs.begin(), strs.end(), 
                             [len] (const string &item) {return item.size() <= len;});
 
-    
-    // partiton return the position which poiont to the last true idx. So 
-    // print the from first false 
+    // output from the frist false item whose length is longer than len 
     for_each(location+1, strs.end(), [] (const string &item) {cout << item << " ";});
     cout << endl;
 
