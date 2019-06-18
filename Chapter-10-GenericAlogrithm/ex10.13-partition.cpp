@@ -14,6 +14,7 @@ void printStringVec(const vector<string> &strs) {
 int main() {
 
     vector<string> strs;
+    vector<string> output;
     string temp;
     while(cin >> temp)
         strs.push_back(temp);
@@ -24,8 +25,9 @@ int main() {
     cout << "After Partition:\n";
     auto index = partition(strs.begin(), strs.end(), 
             [](const string& the_str) {return the_str.size() > 5; } ); 
-    strs.erase(index, strs.end());
-    printStringVec(strs); 
+    
+    copy(strs.begin(), index, back_inserter(output));
+    printStringVec(output); 
     
    return 0; 
 
