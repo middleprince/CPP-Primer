@@ -33,7 +33,7 @@ class StrBlobPtr {
 public:
     StrBlobPtr() : curr(0) {}
     StrBlobPtr(StrBlob &a, size_t sz = 0) : wptr(a.data), curr(sz) {}
-    string & deref() const;
+    string & operator *() const;
     StrBlobPtr& incr();
     size_t locatoin() const {return curr;}
     
@@ -92,7 +92,7 @@ shared_ptr<vector<string> > StrBlobPtr::check(size_t i, const string& msg) const
     return ret;
 }
 
-string & StrBlobPtr::deref() const{
+string & StrBlobPtr::operator *() const{
     auto p = check(curr, "derefrence past end"); 
     return (*p)[curr];
 

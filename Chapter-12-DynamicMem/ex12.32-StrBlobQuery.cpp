@@ -73,7 +73,7 @@ ostream &print(ostream &os, const QueryResult &qr) {
 
     for (auto item : *qr.lines) {
         os << "\t(line " << item + 1 << ")" 
-            << (qr.file->begin() + item).deref() << endl; 
+            << *(qr.file->begin() + item) << endl; 
     }
     return os;
     }
