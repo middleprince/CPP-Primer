@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <iterator>
 
 using namespace std;
 
@@ -26,12 +27,13 @@ class QueryResult {
     friend ostream& printContents(ostream &, const QueryResult &);
 public: 
     using Line_No = vector<string>::size_type;
+    using SetIterator = set<Line_No>::iterator;
     QueryResult(const string &s, shared_ptr<set<Line_No> > p, 
                 shared_ptr<vector<string> > f) : 
         to_sought(s), lines(p), file(f) {}
     
-    iterator<Line_No> beg() {} 
-    iterator<Line_No> end() {} 
+    SetIterator  beg() {return lines->begin();} 
+    SetIterator  end() {return lines->end();} 
     shared_ptr<vector<string> > getFile() {return file;}
 
 
