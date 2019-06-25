@@ -27,6 +27,10 @@ public:
     StrVec & operator=(const StrVec &);
     ~StrVec();
 
+    // add move constructor and move assign constructor
+    StrVec(StrVec &&) noexcept;
+    StrVec &operator=(StrVec &&) noexcept;
+
     void push_back(const std::string&);
     void pop_back();
     size_t size() const {return  first_free - elements;}
@@ -79,6 +83,27 @@ StrVec & StrVec::operator=(const StrVec &rhs) {
     elements = newdata.first;
     cap = first_free = newdata.second;
 
+    return *this;
+}
+
+// StrVec move constructor
+StrVec::StrVec(StrVec &&old) noexcept : elements(std::move(old.elements)), 
+    first_free(std::move(old.first_free)), cap(std::move(old.cap)) {
+        old.elements = old.cap = old.first_free = nullptr;
+            
+     
+}
+
+// StrVec move assign constructor
+StrVec& StrVec::operator=(StrVec &&rhs) noexcept {
+    if (this != &rhs) {
+        free(); 
+        elements = rhs.elements;   
+        first_free = rhs.first_free;
+        cap = rhs.cap;
+
+        rhs.elements = rhs.first_free = rhs.cap = nullptr;
+    }
     return *this;
 }
 

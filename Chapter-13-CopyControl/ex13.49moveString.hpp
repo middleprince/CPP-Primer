@@ -37,7 +37,7 @@ String::String(const char *s) {
     while(*sl) 
         ++sl;
     initialize_range(s, ++sl);
-    std::cout << "String() called for copy construct" << std::endl;
+    std::cout << "# copy construct #" << std::endl;
 }
 
 String::String(const String &old) {
@@ -50,7 +50,7 @@ String & String::operator=(const String &rhs) {
     free();
     elements = newdata.first;
     end = newdata.second; 
-    std::cout << " = copy assign constructor called" << std::endl;
+    std::cout << "# copy assign constructor #" << std::endl;
 
     return *this;
 
@@ -61,6 +61,7 @@ String::String(String &&old) noexcept {
     elements = old.elements;
     end = old.end;
     old.elements = old.elements = nullptr;
+    std::cout << "## move constructor ##" << std::endl;
     
 }
 
@@ -72,7 +73,8 @@ String & String::operator=(String &&rhs) noexcept {
         end = rhs.end;
         rhs.end = rhs.elements = nullptr;
         
-    }
+    } 
+    std::cout << "## move assign constructor ##" << std::endl;
     return *this;
 }
 
