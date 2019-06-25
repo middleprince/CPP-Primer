@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <algorithm>
+#include <iostream>
+
 
 class String {
 public:
@@ -31,6 +33,7 @@ String::String(const char *s) {
     while(*sl) 
         ++sl;
     initialize_range(s, ++sl);
+    std::cout << "String() called for copy construct" << std::endl;
 }
 
 String::String(const String &old) {
@@ -43,6 +46,7 @@ String & String::operator=(const String &rhs) {
     free();
     elements = newdata.first;
     end = newdata.second; 
+    std::cout << " = copy assign constructor called" << std::endl;
 
     return *this;
 
