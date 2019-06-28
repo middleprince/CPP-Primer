@@ -4,8 +4,8 @@
 // add const StrBlobPtr
 // add * oprator and -> operator for StrBlobPtr and ConstStrBlobPtr
 
-#ifndef CP5_ex14_StrBlob_h
-#define CP5_ex14_StrBlob_h
+#ifndef ex14_StrBlob_h
+#define ex14_StrBlob_h
 
 #include <iostream>
 #include <vector>
