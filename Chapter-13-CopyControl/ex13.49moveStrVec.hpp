@@ -90,7 +90,6 @@ StrVec & StrVec::operator=(const StrVec &rhs) {
 StrVec::StrVec(StrVec &&old) noexcept : elements(std::move(old.elements)), 
     first_free(std::move(old.first_free)), cap(std::move(old.cap)) {
         old.elements = old.cap = old.first_free = nullptr;
-            
      
 }
 
