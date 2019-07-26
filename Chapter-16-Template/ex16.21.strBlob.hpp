@@ -28,6 +28,10 @@ public:
     void push_back(const T &&t) {data->push_back(std::move(t)); }
     void pop_back();
 
+    StrBlob<T> & begin();
+    StrBlob<T> & end();
+
+
     T& back();
     T& operator[] (size_type i);
 private:
@@ -52,6 +56,18 @@ void Blob<T>::pop_back() {
     data->pop_back();
 }
 
+template <typename T>
+StrBlob<T> & Blob<T>::begin() {
+    check(0, "back on empty blob");   
+    StrBlob<T> ret(this, 0);
+    return ret;
+}
+
+template <typename T>
+StrBlob<T> & Blob<T>::end() {
+    StrBlob<T> ret(this, this->size()+1);
+    return ret;
+}
 
 template <typename T>
 T& Blob<T>::back() {
@@ -84,6 +100,7 @@ public:
     BlobPtr  operator++(int);
     BlobPtr  operator--(int);
 
+    
 
 private:
     std::shared_ptr<std::vector<T> > check(size_type, const std::string &) const;
@@ -98,7 +115,7 @@ BlobPtr<T>::check(size_type i, const std::string &msg) const {
     auto ret = wptr.lock();
    if (!ret) 
        throw std::runtime_error("unbount BlobPtr");
-   if (i >= data->size())
+   if (i >= ret->data.size())
        throw std::out_of_range(msg);
    return ret;
 
@@ -113,25 +130,31 @@ inline T & BlobPtr<T>::operator*() const {
 
 template <typename T> 
 inline BlobPtr<T> & BlobPtr<T>::operator++() {
-    return  *++this;
+    check(curr + 1, "pass end of block");
+    curr += 1;
+    return  *this;
 }
 
 template <typename T> 
 inline BlobPtr<T> & BlobPtr<T>::operator--() {
-    return  *--this;
+    check(curr - 1, "ahead of begin");
+    curr -= 1;
+    return  *this;
 }
 
 template <typename T> 
 inline BlobPtr<T>  BlobPtr<T>::operator++(int) {
     auto ret = *this;
-    ++*this;
+    check(curr + 1, "pass end of block");
+    curr += 1;
     return ret;
 }
 
 template <typename T> 
 inline BlobPtr<T>  BlobPtr<T>::operator--(int) {
     auto ret = *this;
-    --*this;
+    check(curr - 1, "ahead of begin");
+    curr -= 1;
     return ret;
 }
 
