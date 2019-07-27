@@ -1,5 +1,5 @@
-#ifndef ex16_21_stdBlob_h
-#define ex16_21_stdBlob_h
+#ifndef ex16_12_stdBlob_h
+#define ex16_12_stdBlob_h
 
 #include <vector>
 #include <string>
