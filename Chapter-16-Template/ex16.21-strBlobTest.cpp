@@ -6,19 +6,19 @@ using std::string;
 
 int main() {
     Blob<string> theStrings{"hello", "me", "you"};
-    Blob<int> theInts{1, 3, 4, 5, 6};
-    
     theStrings.push_back(std::move("king"));
-    theInts.push_back(100);
 
-    BlobPtr<string> strPtr(theStrings);
-    BlobPtr<int> intPtr(theInts);
+    Blob<string> theStringscp = theStrings;
 
-    cout << *strPtr << endl;
+    for (auto item = theStrings.cbegin(); item != theStrings.cend(); ++item)
+        cout << *item << " ";
+    cout << endl;
+    
 
-    //for (auto item = theStrings.begin(); item != theStrings.end(); ++item)
-    //    cout << *item << " ";
-    //cout << endl;
+    for (auto item = theStringscp.cbegin(); item != theStringscp.cend(); ++item)
+        cout << *item << " ";
+    cout << endl;
+    
 
     return 0;
 }
