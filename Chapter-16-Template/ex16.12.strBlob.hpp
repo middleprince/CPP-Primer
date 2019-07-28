@@ -38,7 +38,6 @@ class Blob {
     friend bool operator<= <T>(const Blob<T> &, const Blob<T> &);
     friend bool operator>= <T>(const Blob<T> &, const Blob<T> &);
 public:
-    typedef T vaule_type;
     typedef typename std::vector<T>::size_type size_type;
 
     Blob() : data(std::make_shared<std::vector<T> >()) {}
@@ -69,11 +68,11 @@ public:
     const T& back ()const;
 
     T& operator[] (size_type n);
-    const T & operator[] (size_type n) const;
+    const T& operator[] (size_type n) const;
 
 private:
     std::shared_ptr<std::vector<T> > data;
-    void check(size_type, const T &) const;
+    void check(size_type, const std::string &) const;
 };
 
 //-----------------------------------------------------------------------------
@@ -146,7 +145,7 @@ ConstBlobPtr<T> Blob<T>::cend() const {
 }
 
 template <typename T>
-inline void Blob<T>::check(size_type i, const T &msg) const {
+inline void Blob<T>::check(size_type i, const std::string &msg) const {
     if (i >= data->size()) 
         throw std::out_of_range(msg);
 }
@@ -226,6 +225,7 @@ public:
     BlobPtr(Blob<T> &a, size_type sz= 0) : wptr(a.data), curr(sz) {}
 
     T& operator*() const;
+    T* operator->() const;
 
     BlobPtr & operator++();
     BlobPtr & operator--();
@@ -241,7 +241,7 @@ public:
     const T & operator[] (size_t n) const;
 
 private:
-    std::shared_ptr<std::vector<T> > check(size_type, const T &) const;
+    std::shared_ptr<std::vector<T> > check(size_type, const std::string &) const;
     std::weak_ptr<std::vector<T> > wptr;   
     size_type curr;
     
@@ -292,6 +292,11 @@ template <typename T>
 inline T & BlobPtr<T>::operator*() const {
     auto p = check(curr, "defrence pass end");
     return (*p)[curr];
+}
+
+template <typename T> 
+inline T * BlobPtr<T>::operator->() const {
+    return &this->operator*();
 }
 
 template <typename T> 
@@ -352,7 +357,7 @@ inline BlobPtr<T> BlobPtr<T>::operator-(size_t n) const {
 
 template <typename T>
 inline std::shared_ptr<std::vector<T> > 
-BlobPtr<T>::check(size_type i, const T& msg) const
+BlobPtr<T>::check(size_type i, const std::string &msg) const
 {
     auto ret = wptr.lock();
     if (!ret) throw std::runtime_error("unbound Blob<T>Ptr");
@@ -427,7 +432,7 @@ public:
     const T & operator[] (size_t n) const;
 
 private:
-    std::shared_ptr<std::vector<T> > check(size_type, const T &) const;
+    std::shared_ptr<std::vector<T> > check(size_type, const std::string &) const;
     
     std::weak_ptr<std::vector<T> > wptr;   
     size_type curr;
@@ -545,7 +550,7 @@ inline ConstBlobPtr<T> ConstBlobPtr<T>::operator-(size_t n) const {
 
 template <typename T>
 inline std::shared_ptr<std::vector<T> > 
-ConstBlobPtr<T>::check(size_type i, const T& msg) const
+ConstBlobPtr<T>::check(size_type i, const std::string &msg) const
 {
     auto ret = wptr.lock();
     if (!ret) throw std::runtime_error("unbound Blob<T>Ptr");
