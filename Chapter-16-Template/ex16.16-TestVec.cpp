@@ -94,6 +94,8 @@ int main() {
     intVec.resize(14);
     cout << "B. after resize, size is: " << intVec.size() << "\n"
          << "C. after resize, capacity is: " << intVec.capacity() << endl;
+    cout << "After resize contents showing below: \n"; 
+    for (const auto& item : intVec) cout << item << " ";
     
     return 0;
 }
