@@ -39,7 +39,7 @@ private:
 
 template <typename T>
 inline SharedPtr<T>::SharedPtr(const SharedPtr& lhs) 
-    : _ptr(lhs,_ptr), pcount(lhs.pcount), _del(lhs._del) {
+    : _ptr(lhs._ptr), pcount(lhs.pcount), _del(lhs._del) {
         ++*pcount;
 }
 
@@ -62,7 +62,7 @@ inline SharedPtr<T>::~SharedPtr() {
 
 template <typename T>
 inline SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr sp) {
-    swap(*this, sp);
+    swap(sp);
     return *this;
 }
 
@@ -70,7 +70,7 @@ template <typename T>
 inline void SharedPtr<T>::reset(T* ptr, DelFunc del) noexcept {
     // safe and simple way to release memory using temp's destructor;
     SharedPtr temp(ptr, del);
-    swap(*this, temp);
+    swap(temp);
 }
 
 template <typename T>
@@ -86,12 +86,14 @@ inline void SharedPtr<T>::swap(SharedPtr& lhs) noexcept {
 //------------------------------------------------------------------------------
 //          Class UniquePtr
 //------------------------------------------------------------------------------
+
+// callable object
 class Delete {
 public:
     template <typename T> void operator() (T* ptr) const {delete ptr;}
 };
 
-template <typename T, typename D>
+template <typename T, typename D = Delete>
 class UniquePtr {
 public:
     UniquePtr(T* ptr = nullptr, const D& del = D()) noexcept 
@@ -120,7 +122,7 @@ public:
 
 private:
     T* _ptr = nullptr;
-    D _del = nullptr;
+    D _del;
 };
 
 
@@ -128,7 +130,7 @@ private:
 
 template <typename T, typename D>
 inline UniquePtr<T, D>::UniquePtr(UniquePtr&& rhs) noexcept 
-    : _ptr(rhs.ptr), _del(std::move(rhs._del)) {
+    : _ptr(rhs._ptr), _del(std::move(rhs._del)) {
         rhs._ptr = nullptr;
     }
 
@@ -150,8 +152,10 @@ inline UniquePtr<T, D>& UniquePtr<T, D>::operator=(std::nullptr_t ) noexcept {
  
 template <typename T, typename D>
 inline void UniquePtr<T, D>::reset(T* p) noexcept {
-    UniquePtr temp(p);
-    swap(*this, temp);
+    //UniquePtr temp(p);
+    //swap(temp);
+    _del(p);
+    _ptr = p;
 }
 
 template <typename T, typename D>
