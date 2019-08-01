@@ -2,21 +2,18 @@
 #define ex16_21_DebugDelete_h
 #include <iostream>
 #include <memory>
-using std::cout;
-using std::endl;
-using std::ostream;
 
 class DebugDelete {
 public:
-    DebugDelete(ostream & os_in = std::cerr) : os(os_in) {}
+    DebugDelete(std::ostream & os_in = std::cerr) : os(os_in) {}
     template <typename T>
     void operator() (T *p) const {
-        cout << "delete unique_ptr" << endl;
+        std::cout << "delete unique_ptr" << std::endl;
         delete p;
     }
     
 private:
-    ostream &os;
+    std::ostream &os;
 };
 
 #endif
