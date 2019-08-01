@@ -1,10 +1,11 @@
-#ifndef ex16_16_StrVec_hpp
-#define ex16_16_StrVec_hpp
+#ifndef ex16_16_Vec_hpp
+#define ex16_16_Vec_hpp
 
 
 #include <algorithm>
 #include <initializer_list>
 #include <memory>
+#include <iterator>
 #include <stdexcept>
 
 #ifndef _MSC_VER
@@ -143,6 +144,7 @@ template <typename T>
 Vec<T>::Vec(Vec<T>&& s) NOEXCEPT 
     : elements(s.elements), first_free(s.first_free), cap(s.cap) 
 {
+    // the element moved must be destructable
     // leave s in a state in which it is safe to run the destructor.
     s.elements = s.first_free = s.cap = nullptr;
 }
@@ -204,14 +206,14 @@ std::pair<T*, T*>
 Vec<T>::alloc_n_copy(const T* b, const T* e)
 {
     auto data = alloc.allocate(e - b);
-    return {data, std::uninitialized_copy(b, e, data)};
+    return {data, std::uninitialized_copy(std::make_move_iterator(b), std::make_move_iterator(e), data)};
 }
 
 template <typename T> 
 void Vec<T>::free()
 {
     if (elements) {
-        for_each(elements, first_free, [this](T& rhs) { alloc.destroy(&rhs); });
+        std::for_each(elements, first_free, [this](T& rhs) { alloc.destroy(&rhs); });
         alloc.deallocate(elements, cap - elements);
     }
 }
@@ -229,8 +231,12 @@ void Vec<T>::alloc_n_move(size_t new_cap)
     auto newdata = alloc.allocate(new_cap);
     auto dest = newdata;
     auto elem = elements;
-    for (size_t i = 0; i != size(); ++i)
-        alloc.construct(dest++, std::move(*elem++));
+    //for (size_t i = 0; i != size(); ++i)
+    //    alloc.construct(dest++, std::move(*elem++));
+    
+    // using move iterator to construct
+    dest = uninitialized_copy(std::make_move_iterator(begin()), std::make_move_iterator(end()), newdata);
+    
     free();
     elements = newdata;
     first_free = dest;
