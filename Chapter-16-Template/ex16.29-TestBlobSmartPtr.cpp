@@ -52,15 +52,15 @@ int main() {
     cout << "\n " <<  endl;
 
     // Test for operator []
-    cout << "## Test for operator [2] on theStrings" << endl;
-    cout << theStrings[2] << endl;
+    cout << "## Test for operator [1] on theStrings" << endl;
+    cout << theStrings[1] << endl;
     cout << "\n " <<  endl;
 
     // for const constructor
     const Blob<string> const_theString(theStrings);
     auto constItem = const_theString.cbegin();
-    cout << "## Test for const iterator and operator[3] on const_theString" << endl;
-    cout << constItem[3] << endl;
+    cout << "## Test for const iterator and operator[1] on const_theString" << endl;
+    cout << constItem[1] << endl;
     cout << "\n " <<  endl;
 
     // Test for template member function 
