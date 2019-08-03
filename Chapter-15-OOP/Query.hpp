@@ -5,15 +5,18 @@
 
 //-----------------------------------------------------------------------------
 //          Class Query_base  
-//          A pure abstrct class for interface class Query
+//          @functioning: A pure abstrct class for interface class Query
 //-----------------------------------------------------------------------------
 
 class Query_base {
     friend class Query;
 protected:
     using Line_No = TextQuery::Line_No;
-    virtual ~Query_base() = default;
+    // for voirtual function  
+    virtual ~Query_base() = default;;
 private:
+    // pure abstrct vitual function for evaluating finding and reprensting string
+    //  to print.
     virtual QueryResult eval(const TextQuery &) const = 0;
     virtual string rep() const = 0;
 };
@@ -22,7 +25,8 @@ private:
 
 //-----------------------------------------------------------------------------
 //          Class WordQuery  
-//          class word finding 
+//          
+//          @functioning: which find word in TextQuery obj
 //-----------------------------------------------------------------------------
 
 class WordQuery : public Query_base {
@@ -40,7 +44,8 @@ class WordQuery : public Query_base {
 
 //-----------------------------------------------------------------------------
 //          Class Query  
-//          class for user interface 
+//          @functioning: class for user interface which hide the class 
+//              drerived structure. 
 //-----------------------------------------------------------------------------
 
 class Query : public Query_base {
@@ -49,7 +54,9 @@ friend Query operator |(const Query &, const Query &);
 friend Query operator &(const Query &, const Query &);
 
 public: 
+    // constructor to initializing string to find into Query obj
     Query(const string &);
+    // diffrent type of objects using  eval() and rep() dynamicly.
     QueryResult eval(const TextQuery &t) const {
         return q->eval(t); 
     }
@@ -57,6 +64,10 @@ public:
         return q->rep(); 
     }
 private:
+    // constructor for friend operators to construct Query obj,
+    //  which meant to evalueating finnal result. 
+    // 
+    
     Query(shared_ptr<Query_base> query): q(query) {}
     shared_ptr<Query_base> q;
 };
@@ -70,7 +81,7 @@ operator <<(ostream &os, const Query &query) {
 }
 //-----------------------------------------------------------------------------
 //          Class NotQuery  
-//          class not operator manipulation 
+//          @functioning: class for not operating   
 //-----------------------------------------------------------------------------
 
 class NotQuery : public Query_base {
@@ -92,12 +103,13 @@ QueryResult NotQuery::eval(const TextQuery &text) const {
     auto ret_lines = std::make_shared<set<Line_No> > ();
     auto beg = result.begin(), end = result.end();
 
+    // to find line_no from file which don't include the word
     auto sz = result.getFile()->size(); 
     for (size_t i = 0; i != sz; ++i) {
-        // There is no word found in text
+        // store the line_no for thoese don't include the  word  in the text
         if (beg == end || *beg != i) 
             ret_lines->insert(i);
-        // Found the word , then skip it's line number
+        // skip the line_no of the word that is in the file.
         else if (beg != end)
             ++beg;
     }
@@ -107,7 +119,9 @@ QueryResult NotQuery::eval(const TextQuery &text) const {
 
 //-----------------------------------------------------------------------------
 //          Class BinaryQuery  
-//          Pure Abstract class for class AndQuery and OrQuery 
+//          @functoining: Pure Abstract class for class AndQuery and OrQuery, 
+//              which sotre their common information
+//          
 //-----------------------------------------------------------------------------
 
 class BinaryQuery : public Query_base {
@@ -129,7 +143,9 @@ protected:
 
 //-----------------------------------------------------------------------------
 //          Class AndQuery  
-//          class for operation &
+//          @functioning: class for operation &, which genertate Query obj 
+//              which contian needed functions and information for operation 
+//              &. 
 //-----------------------------------------------------------------------------
 
 class AndQuery : public BinaryQuery {
@@ -147,6 +163,7 @@ inline Query operator &(const Query &lhs, const Query &rhs) {
 QueryResult 
 AndQuery::eval(const TextQuery &text) const {
     auto left = lhs.eval(text), right = rhs.eval(text);    
+    // for void output, which mean there is no intersection between these two set
     auto ret_lines = std::make_shared<set<Line_No> >();
     
     set_intersection(left.begin(), left.end(), 
@@ -159,7 +176,8 @@ AndQuery::eval(const TextQuery &text) const {
 
 //-----------------------------------------------------------------------------
 //          Class OrQuery  
-//          class for operation |
+//          @functioning: class for operation |, which contain need information
+//              and function for the doing the | oeration.
 //-----------------------------------------------------------------------------
 
 class OrQuery : public BinaryQuery {
@@ -177,12 +195,12 @@ inline Query operator |(const Query &lhs, const Query &rhs) {
 QueryResult 
 OrQuery::eval(const TextQuery &text) const {
     auto left = lhs.eval(text), right = rhs.eval(text);    
+    // concatenate two sets 
     auto ret_lines = std::make_shared<set<Line_No> >(left.begin(), left.end());
     ret_lines->insert(right.begin(), right.end());   
 
     return QueryResult(rep(), ret_lines, left.getFile());
 }
-
 
 
 
