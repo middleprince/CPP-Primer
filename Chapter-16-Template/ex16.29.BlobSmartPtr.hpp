@@ -56,7 +56,7 @@ public:
     Blob(const Blob<T> &&rhs) noexcept : data(std::move(rhs.data)) {}
     Blob & operator=(const Blob<T> &&) noexcept;
     
-    size_type size() const {return data.use_count(); }
+    size_type size() const {return data->size(); }
     bool empty() const {return data->empty(); }
 
     void push_back(const T &t) {data->push_back(t); }
@@ -113,7 +113,8 @@ template <typename T> bool operator>=(const Blob<T> &lhs, const Blob<T> &rhs) {
 };
 
 //-----------------------------------------------------------------------------
-//      memberfunction  function 
+//     Class StrBlob memberfunction  function 
+//
 //-----------------------------------------------------------------------------
 
 template <typename T>
@@ -139,7 +140,7 @@ BlobPtr<T> Blob<T>::begin() {
 
 template <typename T>
 BlobPtr<T> Blob<T>::end() {
-    return BlobPtr<T>(*this, data.use_count());
+    return BlobPtr<T>(*this, data->size());
 }
 
 template <typename T>
@@ -149,13 +150,12 @@ ConstBlobPtr<T> Blob<T>::cbegin() const {
 
 template <typename T>
 ConstBlobPtr<T> Blob<T>::cend() const {
-    // Fix: can not construct ConstBlobPtr
-    return ConstBlobPtr<T>(*this, data.use_count());
+    return ConstBlobPtr<T>(*this, data->size());
 }
 
 template <typename T>
 inline void Blob<T>::check(size_type i, const std::string &msg) const {
-    if (i >= data.use_count()) 
+    if (i >= data->size()) 
         throw std::out_of_range(msg);
 }
 
@@ -191,6 +191,8 @@ inline const T & Blob<T>::back() const {
 
 template <typename T>
 inline T& Blob<T>::operator[](size_type n) {
+    //std::cout << "== debug ==\n" 
+    //          << "int Blob::[], n is: " << n << "\b" << std::endl;
     check(n, "subscript out of range");   
     return (*data)[n];
 }
@@ -231,7 +233,7 @@ public:
     typedef typename std::vector<T>::size_type size_type;
     
     BlobPtr() : curr(0) {} 
-    // FIX: bug to fix for wptr binding
+    
     BlobPtr(Blob<T> &a, size_type sz= 0) : wptr(&(a.data)), curr(sz) {}
 
     T& operator*() const;
@@ -294,7 +296,7 @@ bool operator>=(const BlobPtr<T> &lhs, const BlobPtr<T> &rhs) {
 
 
 //-----------------------------------------------------------------------------
-//      memberfunction  function 
+//      Template BlobPtr memberfunction  function 
 //-----------------------------------------------------------------------------
 
 
@@ -376,8 +378,11 @@ BlobPtr<T>::check(size_type i, const std::string &msg) const
     
     auto ret = wptr->get();
     if (!ret) throw std::runtime_error("unbound Blob<T>Ptr");
-    if (i >= wptr->use_count()) throw std::out_of_range(msg);
-    return *wptr;
+
+    // Fixed 2.a: size access error, using (*wptr)->size() instead of 
+    //  wptr->use_count()
+    if (i > (*wptr)->size()) throw std::out_of_range(msg);
+        return *wptr;
      
 }
 
@@ -430,7 +435,8 @@ public:
     typedef typename std::vector<T>::size_type size_type;
     
     ConstBlobPtr() : curr(0) {} 
-    // Fix: can not initialize pionter wptr
+    // Fixed 1: bug- can not initialize pionter wptr, type can not match.
+    //  declare wptr as const type *const to fix it. 
     ConstBlobPtr(const Blob<T> &a, size_type sz= 0) : wptr(&(a.data)), curr(sz) {}
 
     const T& operator*() const;
@@ -449,9 +455,9 @@ public:
     const T & operator[] (size_t n) const;
 
 private:
-    SharedPtr<std::vector<T> > check(size_type, const std::string &) const;
+    const SharedPtr<std::vector<T> > check(size_type, const std::string &) const;
     
-    SharedPtr<std::vector<T> >* wptr;   
+    const SharedPtr<std::vector<T> >* const  wptr;   
     size_type curr;
     
 };
@@ -493,7 +499,7 @@ bool operator>=(const ConstBlobPtr<T> &lhs, const ConstBlobPtr<T> &rhs) {
 
 
 //-----------------------------------------------------------------------------
-//      memberfunction  function 
+//      Template ConstBlobPtr memberfunction  function 
 //-----------------------------------------------------------------------------
 
 
@@ -512,6 +518,7 @@ inline const T * ConstBlobPtr<T>::operator->() const {
 template <typename T> 
 inline ConstBlobPtr<T> & ConstBlobPtr<T>::operator++() {
     check(curr, "increment past end of Blob<T>Ptr");
+     
     ++curr;
     return  *this;
 }
@@ -566,18 +573,24 @@ inline ConstBlobPtr<T> ConstBlobPtr<T>::operator-(size_t n) const {
 }
 
 template <typename T>
-inline SharedPtr<std::vector<T> > 
+inline const SharedPtr<std::vector<T> > 
 ConstBlobPtr<T>::check(size_type i, const std::string &msg) const
 {
     auto ret = wptr->get();
     if (!ret) throw std::runtime_error("unbound Blob<T>Ptr");
-    if (i >= wptr->use_count()) throw std::out_of_range(msg);
-    return *wptr;
+   
+    // Fixed 2.b: size access error, using (*wptr)->size() instead of 
+    //  wptr->use_count()
+    if (i >= (*wptr)->size()) throw std::out_of_range(msg);
+        return *wptr;
 }
 
 
 template <typename T>
 inline const T & ConstBlobPtr<T>::operator[] (size_t n) const {
+  //std::cout << "== debug == \n" 
+  //          << "in ConstBlobPtr[], n is: " << n 
+  //          <<" size wptr is: " << (*wptr)->size() << "\n" << std::endl; 
   auto p = check(n, "deference out of range");  
   return (*p)[n];
 }

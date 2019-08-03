@@ -15,7 +15,7 @@ public:
     ~SharedPtr();
 
     SharedPtr(const SharedPtr&);
-    SharedPtr(const SharedPtr&&) noexcept;
+    SharedPtr(SharedPtr&&) noexcept;
     SharedPtr & operator=(SharedPtr); 
 
     void reset(T* ptr = nullptr, DelFunc del = nullptr) noexcept; 
@@ -44,7 +44,7 @@ inline SharedPtr<T>::SharedPtr(const SharedPtr& lhs)
 }
 
 template <typename T>
-inline SharedPtr<T>::SharedPtr(const SharedPtr&& rhs) noexcept : SharedPtr() {
+inline SharedPtr<T>::SharedPtr(SharedPtr&& rhs) noexcept : SharedPtr() {
     swap(rhs);
 }
 
