@@ -28,6 +28,9 @@ using std::shared_ptr;
 
 //-----------------------------------------------------------------------------
 //      Class QueryResult
+//      @functioning: the class contians the information about the word and 
+//          line_no description, which for pass these information for operator
+//          << to print.
 //-----------------------------------------------------------------------------
 
 class QueryResult {
@@ -40,6 +43,7 @@ public:
                 shared_ptr<vector<string> > f) : 
         to_sought(s), lines(p), file(f) {}
     
+    // iterator for line_no
     SetIterator  begin() {return lines->begin();} 
     SetIterator  end() {return lines->end();} 
     shared_ptr<vector<string> > getFile() {return file;}
@@ -53,6 +57,8 @@ private:
 
 //-----------------------------------------------------------------------------
 //      Class TextQuery
+//      @functoning: class to transfer file to "useful" format to doing the 
+//          finding operationg.
 //-----------------------------------------------------------------------------
 
 class TextQuery {
@@ -60,7 +66,7 @@ public:
     using Line_No = vector<string>::size_type;
     TextQuery(ifstream &infile);
     QueryResult queryWord(const string &word) const;
-        
+
 private:
     shared_ptr<vector<string> > file_content;
     map<string, shared_ptr<set<Line_No> > > word_detail;
@@ -77,11 +83,12 @@ TextQuery::TextQuery(ifstream &infile) : file_content(new vector<string>) {
         string word;
         std::istringstream words(line); 
         while (words >> word) {
-            // index acess contents for map, which will constructor a void
-            // pair for the indexed item, if it's null.
+            // store the line_no into map, which will reuturn the pointer 
+            //  pionted to set that contains line_no of the word.
             auto &lines = word_detail[word]; 
-            // the frist word occured , lines will point to nullptr, 
-            //  allocate a set memeory for line number
+
+            // allocate new memory first time which the word occours for the 
+            //  fisrt time.
             if ( !lines) 
                 lines.reset(new set<Line_No>);
             lines->insert(line_no);
@@ -92,11 +99,12 @@ TextQuery::TextQuery(ifstream &infile) : file_content(new vector<string>) {
 
 QueryResult
 TextQuery::queryWord(const string &word) const {
+    // for no word found
     static shared_ptr<set<Line_No> > nodata(new set<Line_No>);
-    // using find inseatd of underline index to acess item, becuase of 
-    // accessing item by using index will cause a little "bug", which means
-    // when there is no data index point to, it will constructe a initialize 
-    // a pair.
+    // using find inseatd of underline index to acess item, becuase  
+    //  accessing item by using index will cause a little "bug", which means
+    //  when there is no data index point to, it will constructe a initialize a
+    //  pair of these type .
     auto location = word_detail.find(word); 
     if (location == word_detail.end()) 
         return QueryResult(word, nodata, file_content);
