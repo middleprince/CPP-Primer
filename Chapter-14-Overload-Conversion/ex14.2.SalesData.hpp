@@ -4,21 +4,31 @@
 
 #include <iostream>
 #include <string>
+#include <functional>
+
+// add forward declaraton for template hash which will specialize
+//   hash<SaleData> in chapter 16 ex16.62
+
+//template <class T> class std::hash;
 
 class SalesData {
     friend std::istream & operator>>(std::istream &, SalesData &);
     friend std::ostream & operator<<(std::ostream &, const SalesData &);
     friend SalesData operator+(const SalesData &, const SalesData &); 
 
+    friend bool operator==(const SalesData&, const SalesData&);
+    friend bool operator!=(const SalesData&, const SalesData&);
+    friend class std::hash<SalesData>;
+
 public:
     SalesData(const std::string &s, unsigned n, double p)
         : bookNo(s), unit_sold(n), revenue(n * p) {}
-    SalesData() : SalesData("", 0, 0.0f) {}
-    SalesData(const std::string &s) : SalesData(s, 0, 0.0f) {}
+    SalesData() : SalesData("", 0, 0.0) {}
+    SalesData(const std::string &s) : SalesData(s, 0, 0.0) {}
     SalesData(std::istream &is);
 
     SalesData & operator+=(const SalesData &);
-    std::string isbn() {return bookNo;}
+    std::string isbn() const {return bookNo;}
 
 private:
     std::string bookNo;
@@ -69,6 +79,17 @@ SalesData operator+(const SalesData &item_a, const SalesData &item_b) {
     return result;
 }
 
+inline 
+bool operator==(const SalesData &lhs, const SalesData &rhs) {
+    return lhs.isbn() == rhs.isbn() &&
+           lhs.unit_sold == rhs.unit_sold &&
+           lhs.revenue == rhs.revenue;
+}
+ 
+inline 
+bool operator!=(const SalesData &lhs, const SalesData &rhs) {
+    return !(lhs == rhs);
+}
 
 #endif
 
