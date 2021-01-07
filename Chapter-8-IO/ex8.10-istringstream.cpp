@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     for (auto &strs : the_bottle) {
         istringstream the_str(strs);
         while(the_str >> word)
-         cout << word << endl;
+            cout << word << endl;
     }
     return 0;
     
