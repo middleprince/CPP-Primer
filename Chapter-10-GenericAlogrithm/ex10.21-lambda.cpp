@@ -18,6 +18,6 @@ int main() {
         cout << "The int in lambda state is not zero: " << state;
         cout << endl;
     }
-    cout << "The int in lambda state is not zero: " << state;
+    cout << "The int in lambda state is zero: " << state;
     return 0;
 }

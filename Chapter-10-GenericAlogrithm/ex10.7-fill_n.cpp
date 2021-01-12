@@ -8,6 +8,7 @@ int main() {
     vector<int> vec;
     vec.reserve(10);
     fill_n(back_inserter(vec), 10, 1);
+    //fill_n(vec, 10, 1);
 
     for (const auto &item : vec)
         cout << item << " ";
