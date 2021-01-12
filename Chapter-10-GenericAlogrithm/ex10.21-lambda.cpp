@@ -5,6 +5,7 @@ using namespace std;
 int main() {
     int a = 4;
     auto f = [=] ()mutable -> bool {
+    //auto f = [=] () -> bool {
         if (a > 0){
             --a;
             return true;
