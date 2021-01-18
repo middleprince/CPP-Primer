@@ -6,14 +6,14 @@
 
 using namespace std;
 
-class StrBlobPtr;
+class ConstStrBlobPtr;
 class StrBlob {
  public:
     typedef vector<string>::size_type size_type;
     
-    friend class StrBlobPtr;
-    StrBlobPtr begin();
-    StrBlobPtr end(); 
+    friend class ConstStrBlobPtr;
+    ConstStrBlobPtr begin() const;
+    ConstStrBlobPtr end() const; 
     
     StrBlob();
     StrBlob(initializer_list<string> il);
@@ -28,12 +28,12 @@ private:
     void check(size_type i, const string &msg) const;
 };
 
-class StrBlobPtr {
+class ConstStrBlobPtr {
 public:
-    StrBlobPtr() : curr(0) {}
-    StrBlobPtr(StrBlob &a, size_t sz = 0) : wptr(a.data), curr(sz) {}
+    ConstStrBlobPtr() : curr(0) {}
+    ConstStrBlobPtr(const StrBlob &a, size_t sz = 0) : wptr(a.data), curr(sz) {}
     string & deref() const;
-    StrBlobPtr& incr();
+    ConstStrBlobPtr& incr();
     size_t locatoin() const {return curr;}
 
 private:
@@ -46,7 +46,7 @@ private:
 StrBlob::StrBlob() : data(make_shared<vector<string> >()){}
 StrBlob::StrBlob(initializer_list<string> il) : data(make_shared<vector<string> >(il)){}
 
-void StrBlob::check(size_type i, const string &msg) const{
+void StrBlob::check(size_type i, const string &msg) const {
     if (i >= data->size())
         throw out_of_range(msg);
 }
@@ -67,32 +67,32 @@ string & StrBlob::back() const {
 }
 
 
-StrBlobPtr StrBlob::begin() {
-    return StrBlobPtr(*this); }
+ConstStrBlobPtr StrBlob::begin() const {
+    return ConstStrBlobPtr(*this); }
 
-StrBlobPtr StrBlob::end() {
-    auto ret = StrBlobPtr(*this, data->size());
+ConstStrBlobPtr StrBlob::end() const {
+    auto ret = ConstStrBlobPtr(*this, data->size());
     return ret;
 }
 
 
-shared_ptr<vector<string> > StrBlobPtr::check(size_t i, const string& msg) const{
+shared_ptr<vector<string> > ConstStrBlobPtr::check(size_t i, const string& msg) const{
     auto ret = wptr.lock();
     if (!ret)
-        throw runtime_error("unbound StrBlobPtr");
+        throw runtime_error("unbound ConstStrBlobPtr");
     if (i > ret->size())
         throw out_of_range(msg);
     return ret;
 }
 
-string & StrBlobPtr::deref() const{
+string & ConstStrBlobPtr::deref() const{
     auto p = check(curr, "derefrence past end"); 
     return (*p)[curr];
 
 }
 
-StrBlobPtr& StrBlobPtr::incr() {
-    check(curr, "increment past end of StrBlobPtr");
+ConstStrBlobPtr& ConstStrBlobPtr::incr() {
+    check(curr, "increment past end of ConstStrBlobPtr");
     ++curr;
     return *this;
 }
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
     while(getline(file_in, text ))
         contents.push_back(text);
 
-    StrBlobPtr str_ptr(contents); 
+    ConstStrBlobPtr str_ptr(contents); 
     auto mbeg = contents.begin();
     while (mbeg.locatoin() != contents.end().locatoin()) {
         cout << mbeg.deref() << endl; 
